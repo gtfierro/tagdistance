@@ -1,16 +1,20 @@
 package main
 
 import (
+	_ "fmt"
 	"strings"
 )
 
 var Tags = make(map[string]int)
+var PatentMap = make(map[string]int)
 
 func makeTags(filename string) {
 	index := 0
+	linecount := 0
 	fileChannel := make(chan []byte)
 	go readFile(filename, fileChannel)
 	for line := range fileChannel {
+		linecount += 1
 		parsed := strings.Split(string(line), ",")
 		number := parsed[0]
 		tagline := parsed[1]
@@ -23,6 +27,7 @@ func makeTags(filename string) {
 			}
 			taglist[i] = Tags[tag]
 		}
-		Patents[number] = makePatent(number, taglist)
+		Patents[number] = makePatent(linecount, taglist)
+		PatentMap[number] = linecount
 	}
 }

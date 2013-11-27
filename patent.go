@@ -10,11 +10,11 @@ var patentChannel = make(chan *Patent)
 var patentwg sync.WaitGroup
 
 type Patent struct {
-	number string
+	number int
 	tags   []int
 }
 
-func makePatent(number string, taglist []int) *Patent {
+func makePatent(number int, taglist []int) *Patent {
 	p := &Patent{number: number, tags: taglist}
 	return p
 }

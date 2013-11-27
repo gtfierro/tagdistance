@@ -27,9 +27,8 @@ func main() {
 	makeTags(filename)
 	fmt.Println(len(Tags))
 	fmt.Println(len(Patents))
-	go streamPatents()
 	calculateDistances()
-	getDistance("D500396", "D500397")
+	fmt.Println(getDistance("D500396", "D500397"))
 	if *memprofile != "" {
 		f, err := os.Create(*memprofile)
 		if err != nil {
