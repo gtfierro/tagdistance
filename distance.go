@@ -7,34 +7,41 @@ import (
 )
 
 var wg sync.WaitGroup
+var commit sync.WaitGroup
 
 func calculateDistances() {
-    patentwg.Add(500)
-	for i := 0; i < 500; i++ {
+	patentwg.Add(100)
+	for i := 0; i < 100; i++ {
 		go func() {
 			for p := range patentChannel {
 				distancemap := make(map[int]float64)
 				for _, c := range Patents {
-					distancemap[c.number] = p.jaccardDistance(c)
+					distance := p.jaccardDistance(c)
+					if distance >= .5 {
+						distancemap[c.number] = distance
+					}
 				}
-				commitDistanceMap(p.number, distancemap)
+				go commitDistanceMap(p.number, distancemap)
 			}
-            patentwg.Done()
+			patentwg.Done()
 		}()
 	}
 	for _, p := range Patents {
 		patentChannel <- p
 	}
 	close(patentChannel)
-    patentwg.Wait()
+	patentwg.Wait()
+	commit.Wait()
 }
 
 func commitDistanceMap(p int, dm map[int]float64) {
 	conn := pool.Get()
 	defer conn.Close()
+	defer commit.Done()
 	for num, dist := range dm {
 		conn.Do("HSET", p, num, dist)
 	}
+	fmt.Println(p)
 }
 
 //TODO: dont' do all distances twice! Check for key existance
