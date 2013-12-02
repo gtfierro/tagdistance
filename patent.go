@@ -37,5 +37,5 @@ func (p *Patent) jaccardDistance(c *Patent) float64 {
 			found = false
 		}
 	}
-	return 1 - intersection/union
+	return intersection/union
 }
