@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 )
 
 var wg sync.WaitGroup
@@ -38,19 +42,28 @@ func calculateExternalDistances(filename string) {
 	externalFileChannel := make(chan []byte)
 	externalPatentChannel := make(chan *Patent)
 	externalPatentMap := make(map[int]string)
-	patentwg.Add(50000)
-	for i := 0; i < 50000; i++ {
+	patentwg.Add(5)
+	fileindex := int32(0)
+	for i := 0; i < 5; i++ {
 		go func() {
+			fileindex := atomic.AddInt32(&fileindex, 1)
+			filename := "out/" + strconv.Itoa(int(fileindex))
+			file, err := os.Create(filename)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			defer file.Close()
+			w := bufio.NewWriter(file)
 			for p := range externalPatentChannel {
 				for _, c := range Patents {
 					distance := p.jaccardDistance(c)
 					if p.number == c.number {
 						continue
 					}
-					if distance <= .7 {
-						fmt.Println(externalPatentMap[p.number], PatentMap[c.number], distance)
-					}
+					fmt.Fprint(w, externalPatentMap[p.number], PatentMap[c.number], distance)
 				}
+				w.Flush()
 			}
 			patentwg.Done()
 		}()
