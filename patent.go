@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "fmt"
 	"sync"
 )
 
@@ -37,5 +36,5 @@ func (p *Patent) jaccardDistance(c *Patent) float64 {
 			found = false
 		}
 	}
-	return intersection/union
+	return intersection / union
 }
