@@ -16,6 +16,9 @@ func calculateDistances() {
 			for p := range patentChannel {
 				for _, c := range Patents {
 					distance := p.jaccardDistance(c)
+					if p.number == c.number {
+						continue
+					}
 					if distance <= .7 {
 						fmt.Println(PatentMap[p.number], PatentMap[c.number], distance)
 					}
