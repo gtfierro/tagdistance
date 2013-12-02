@@ -38,14 +38,18 @@ func calculateExternalDistances(filename string) {
 	externalFileChannel := make(chan []byte)
 	externalPatentChannel := make(chan *Patent)
 	externalPatentMap := make(map[int]string)
-	patentwg.Add(100)
-	for i := 0; i < 100; i++ {
+	patentwg.Add(50000)
+	for i := 0; i < 50000; i++ {
 		go func() {
 			for p := range externalPatentChannel {
-				fmt.Println(p.number, externalPatentMap[p.number])
 				for _, c := range Patents {
 					distance := p.jaccardDistance(c)
-					fmt.Println(externalPatentMap[p.number], PatentMap[c.number], distance)
+					if p.number == c.number {
+						continue
+					}
+					if distance <= .7 {
+						fmt.Println(externalPatentMap[p.number], PatentMap[c.number], distance)
+					}
 				}
 			}
 			patentwg.Done()
