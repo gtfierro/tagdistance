@@ -39,12 +39,3 @@ func (p *Patent) jaccardDistance(c *Patent) float64 {
 	}
 	return 1 - intersection/union
 }
-
-func streamPatents() {
-	for _, p := range Patents {
-		patentChannel <- p
-	}
-	close(patentChannel)
-	patentwg.Wait()
-
-}
