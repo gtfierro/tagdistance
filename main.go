@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -21,8 +20,6 @@ func main() {
 	filename := flag.Arg(0)
 	external := flag.Arg(1)
 	makeTags(filename)
-	fmt.Println(len(Tags))
-	fmt.Println(len(Patents))
 	if external != "" {
 		calculateExternalDistances(external)
 	} else {
