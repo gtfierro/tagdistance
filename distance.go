@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"sync/atomic"
 )
 
 var wg sync.WaitGroup
@@ -42,12 +41,10 @@ func calculateExternalDistances(filename string) {
 	externalFileChannel := make(chan []byte)
 	externalPatentChannel := make(chan *Patent)
 	externalPatentMap := make(map[int]string)
-	patentwg.Add(5)
-	fileindex := int32(0)
-	for i := 0; i < 5; i++ {
-		go func() {
-			fileindex := atomic.AddInt32(&fileindex, 1)
-			filename := "out/" + strconv.Itoa(int(fileindex))
+	patentwg.Add(1000)
+	for i := 0; i < 1000; i++ {
+		go func(i int) {
+			filename := "out/" + strconv.Itoa(i)
 			file, err := os.Create(filename)
 			if err != nil {
 				fmt.Println(err)
@@ -61,12 +58,12 @@ func calculateExternalDistances(filename string) {
 					if p.number == c.number {
 						continue
 					}
-					fmt.Fprint(w, externalPatentMap[p.number], PatentMap[c.number], distance)
+					fmt.Fprintln(w, externalPatentMap[p.number], ",", PatentMap[c.number], ",", distance)
 				}
 				w.Flush()
 			}
 			patentwg.Done()
-		}()
+		}(i)
 	}
 	go readFile(filename, externalFileChannel)
 	linecount := 0
