@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/garyburd/redigo/redis"
+	"strings"
 	"sync"
 )
 
@@ -10,18 +10,16 @@ var wg sync.WaitGroup
 var commit sync.WaitGroup
 
 func calculateDistances() {
-	patentwg.Add(100)
-	for i := 0; i < 100; i++ {
+	patentwg.Add(50000)
+	for i := 0; i < 50000; i++ {
 		go func() {
 			for p := range patentChannel {
-				distancemap := make(map[int]float64)
 				for _, c := range Patents {
 					distance := p.jaccardDistance(c)
-					if distance >= .5 {
-						distancemap[c.number] = distance
+					if distance <= .7 {
+						fmt.Println(PatentMap[p.number], PatentMap[c.number], distance)
 					}
 				}
-				go commitDistanceMap(p.number, distancemap)
 			}
 			patentwg.Done()
 		}()
@@ -31,17 +29,42 @@ func calculateDistances() {
 	}
 	close(patentChannel)
 	patentwg.Wait()
-	commit.Wait()
 }
 
-func commitDistanceMap(p int, dm map[int]float64) {
-	conn := pool.Get()
-	defer conn.Close()
-	defer commit.Done()
-	for num, dist := range dm {
-		conn.Do("HSET", p, num, dist)
+func calculateExternalDistances(filename string) {
+	externalFileChannel := make(chan []byte)
+	externalPatentChannel := make(chan *Patent)
+	externalPatentMap := make(map[int]string)
+	patentwg.Add(100)
+	for i := 0; i < 100; i++ {
+		go func() {
+			for p := range externalPatentChannel {
+				fmt.Println(p.number, externalPatentMap[p.number])
+				for _, c := range Patents {
+					distance := p.jaccardDistance(c)
+					fmt.Println(externalPatentMap[p.number], PatentMap[c.number], distance)
+				}
+			}
+			patentwg.Done()
+		}()
 	}
-	fmt.Println(p)
+	go readFile(filename, externalFileChannel)
+	linecount := 0
+	for line := range externalFileChannel {
+		linecount += 1
+		parsed := strings.Split(string(line), ",")
+		number := parsed[0]
+		tagline := parsed[1]
+		tags := strings.Split(tagline, " ")
+		taglist := make([]int, len(tags), len(tags))
+		for i, tag := range tags {
+			taglist[i] = Tags[tag]
+		}
+		externalPatentChannel <- makePatent(linecount, taglist)
+		externalPatentMap[linecount] = number
+	}
+	close(externalPatentChannel)
+	patentwg.Wait()
 }
 
 //TODO: dont' do all distances twice! Check for key existance
@@ -70,13 +93,13 @@ func commitDistanceMap(p int, dm map[int]float64) {
 //	patentwg.Wait()
 //}
 
-func getDistance(p1, p2 string) float64 {
-	r := pool.Get()
-	num1 := PatentMap[p1]
-	num2 := PatentMap[p2]
-	res, err := redis.Float64(r.Do("HGET", num1, num2))
-	if err != nil {
-		fmt.Println(err)
-	}
-	return res
-}
+//func getDistance(p1, p2 string) float64 {
+//	r := pool.Get()
+//	num1 := PatentMap[p1]
+//	num2 := PatentMap[p2]
+//	res, err := redis.Float64(r.Do("HGET", num1, num2))
+//	if err != nil {
+//		fmt.Println(err)
+//	}
+//	return res
+//}

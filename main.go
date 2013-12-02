@@ -24,11 +24,15 @@ func main() {
 	}
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	filename := flag.Arg(0)
+	external := flag.Arg(1)
 	makeTags(filename)
 	fmt.Println(len(Tags))
 	fmt.Println(len(Patents))
-	calculateDistances()
-	fmt.Println(getDistance("D500396", "D500397"))
+	if external != "" {
+		calculateExternalDistances(external)
+	} else {
+		calculateDistances()
+	}
 	if *memprofile != "" {
 		f, err := os.Create(*memprofile)
 		if err != nil {

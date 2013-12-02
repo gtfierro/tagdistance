@@ -6,7 +6,7 @@ import (
 )
 
 var Tags = make(map[string]int)
-var PatentMap = make(map[string]int)
+var PatentMap = make(map[int]string)
 
 func makeTags(filename string) {
 	index := 0
@@ -28,7 +28,7 @@ func makeTags(filename string) {
 			taglist[i] = Tags[tag]
 		}
 		Patents[number] = makePatent(linecount, taglist)
-		PatentMap[number] = linecount
+		PatentMap[linecount] = number
 	}
 	commit.Add(len(Patents))
 }
