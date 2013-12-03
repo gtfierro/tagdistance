@@ -31,7 +31,7 @@ func calculateDistances(concurrency int) {
 						continue
 					}
 					if distance <= .7 {
-                        fmt.Fprintln(w, PatentMap[p.number], ",", PatentMap[c.number], ",", distance)
+						fmt.Fprintln(w, PatentMap[p.number], ",", PatentMap[c.number], ",", distance)
 					}
 				}
 			}
