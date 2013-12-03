@@ -8,6 +8,8 @@ import (
 	"runtime/pprof"
 )
 
+var concurrency = flag.Int("concurrency", 100, "Number of concurrent files/goroutines")
+
 func main() {
 	flag.Parse()
 	f, err := os.Create("cprof")
@@ -21,9 +23,9 @@ func main() {
 	external := flag.Arg(1)
 	makeTags(filename)
 	if external != "" {
-		calculateExternalDistances(external)
+		calculateExternalDistances(*concurrency, external)
 	} else {
-		calculateDistances()
+		calculateDistances(*concurrency)
 	}
 	f, err = os.Create("mprof")
 	if err != nil {
