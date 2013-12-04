@@ -54,8 +54,11 @@ func calculateExternalDistances(filename string) {
 			w := bufio.NewWriter(file)
 			for p := range externalPatentChannel {
 				for _, c := range Patents {
-					distance := p.jaccardDistance(c)
 					if p.number == c.number {
+						continue
+					}
+					distance := p.jaccardDistance(c)
+					if distance <= .2 {
 						continue
 					}
 					fmt.Fprintln(w, externalPatentMap[p.number], ",", PatentMap[c.number], ",", distance)
