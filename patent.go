@@ -4,7 +4,8 @@ import (
 	"sync"
 )
 
-var Patents = make(map[string](*Patent))
+//var Patents = make(map[string](*Patent))
+var Patents = [](*Patent){}
 var patentChannel = make(chan *Patent)
 var patentwg sync.WaitGroup
 

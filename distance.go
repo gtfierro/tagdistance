@@ -12,10 +12,18 @@ import (
 var wg sync.WaitGroup
 var commit sync.WaitGroup
 
-func calculateDistances() {
-	patentwg.Add(50000)
-	for i := 0; i < 50000; i++ {
-		go func() {
+func calculateDistances(concurrency int) {
+	patentwg.Add(concurrency)
+	for i := 0; i < concurrency; i++ {
+		go func(i int) {
+			filename := "out/" + strconv.Itoa(i)
+			file, err := os.Create(filename)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			defer file.Close()
+			w := bufio.NewWriter(file)
 			for p := range patentChannel {
 				for _, c := range Patents {
 					distance := p.jaccardDistance(c)
@@ -23,12 +31,12 @@ func calculateDistances() {
 						continue
 					}
 					if distance <= .7 {
-						fmt.Println(PatentMap[p.number], PatentMap[c.number], distance)
+						fmt.Fprintln(w, PatentMap[p.number], ",", PatentMap[c.number], ",", distance)
 					}
 				}
 			}
 			patentwg.Done()
-		}()
+		}(i)
 	}
 	for _, p := range Patents {
 		patentChannel <- p
@@ -37,12 +45,12 @@ func calculateDistances() {
 	patentwg.Wait()
 }
 
-func calculateExternalDistances(filename string) {
+func calculateExternalDistances(concurrency int, filename string) {
 	externalFileChannel := make(chan []byte)
 	externalPatentChannel := make(chan *Patent)
 	externalPatentMap := make(map[int]string)
-	patentwg.Add(1000)
-	for i := 0; i < 1000; i++ {
+	patentwg.Add(concurrency)
+	for i := 0; i < concurrency; i++ {
 		go func(i int) {
 			filename := "out/" + strconv.Itoa(i)
 			file, err := os.Create(filename)

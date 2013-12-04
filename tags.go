@@ -27,7 +27,8 @@ func makeTags(filename string) {
 			}
 			taglist[i] = Tags[tag]
 		}
-		Patents[number] = makePatent(linecount, taglist)
+		Patents = append(Patents, makePatent(linecount, taglist))
+		//Patents[number] = makePatent(linecount, taglist)
 		PatentMap[linecount] = number
 	}
 	commit.Add(len(Patents))
