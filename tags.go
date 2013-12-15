@@ -9,7 +9,7 @@ var Tags = make(map[string]int)
 var PatentMap = make(map[int]string)
 
 func makeTags(filename string) {
-	index := 0
+	index := 1
 	linecount := 0
 	fileChannel := make(chan []byte)
 	go readFile(filename, fileChannel)
@@ -28,7 +28,6 @@ func makeTags(filename string) {
 			taglist[i] = Tags[tag]
 		}
 		Patents = append(Patents, makePatent(linecount, taglist))
-		//Patents[number] = makePatent(linecount, taglist)
 		PatentMap[linecount] = number
 	}
 	commit.Add(len(Patents))
