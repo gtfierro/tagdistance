@@ -30,19 +30,19 @@ func (p *Patent) jaccardDistance(c *Patent) float64 {
 				break
 			}
 		}
-        union += 1
+		union += 1
 	}
-    for _, ptag := range p.tags {
-      found := false
-      for _, ctag := range c.tags {
-        if ctag == ptag {
-          found = true
-          break
-        }
-      }
-      if !found {
-        union += 1
-      }
-    }
+	for _, ptag := range p.tags {
+		found := false
+		for _, ctag := range c.tags {
+			if ctag == ptag {
+				found = true
+				break
+			}
+		}
+		if !found {
+			union += 1
+		}
+	}
 	return intersection / union
 }
