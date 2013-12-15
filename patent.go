@@ -22,20 +22,27 @@ func makePatent(number int, taglist []int) *Patent {
 func (p *Patent) jaccardDistance(c *Patent) float64 {
 	var intersection, union float64
 	intersection = 0
-	union = float64(len(p.tags))
-	found := false
+	union = float64(0)
 	for _, ctag := range c.tags {
 		for _, ptag := range p.tags {
 			if ctag == ptag {
 				intersection += 1
-				found = true
 				break
 			}
 		}
-		if !found {
-			union += 1
-			found = false
-		}
+        union += 1
 	}
+    for _, ptag := range p.tags {
+      found := false
+      for _, ctag := range c.tags {
+        if ctag == ptag {
+          found = true
+          break
+        }
+      }
+      if !found {
+        union += 1
+      }
+    }
 	return intersection / union
 }
