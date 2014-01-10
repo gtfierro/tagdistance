@@ -66,7 +66,7 @@ func calculateExternalDistances(concurrency int, filename string) {
 						continue
 					}
 					distance := p.jaccardDistance(c)
-					if distance <= 0.2 {
+					if distance == 0.0 {
 						continue
 					}
 					fmt.Fprintln(w, externalPatentMap[p.number], ",", PatentMap[c.number], ",", distance)
