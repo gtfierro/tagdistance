@@ -9,6 +9,11 @@ import (
 
 var filewg sync.WaitGroup
 
+/**
+  Given a filename and a channel, reads each line of the file, removes the newline
+  and sends the line as a byte slice into the channel. This function is called by
+  tags.makeTags
+*/
 func readFile(filename string, channel chan []byte) {
 	file, err := os.Open(filename)
 	if err != nil {
