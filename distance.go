@@ -26,16 +26,22 @@ func calculateDistances(concurrency int) {
 			}
 			defer file.Close()
 			w := bufio.NewWriter(file)
-			for p := range patentChannel {
-				for _, c := range Patents {
-					distance := p.jaccardDistance(c)
+			for {
+				p, more := <-patentChannel
+				if !more {
+					break
+				}
+				for _, c := range Patents[p.number:] {
 					if p.number == c.number {
 						continue
 					}
-					if distance <= .7 {
-						fmt.Fprintln(w, PatentMap[p.number], ",", PatentMap[c.number], ",", distance)
+					distance := p.jaccardDistance(c)
+					if distance == 0.0 {
+						continue
 					}
+					fmt.Fprintln(w, PatentMap[p.number], ",", PatentMap[c.number], ",", distance)
 				}
+				w.Flush()
 			}
 			patentwg.Done()
 		}(i)
@@ -64,7 +70,11 @@ func calculateExternalDistances(concurrency int, filename string) {
 			}
 			defer file.Close()
 			w := bufio.NewWriter(file)
-			for p := range externalPatentChannel {
+			for {
+				p, more := <-externalPatentChannel
+				if !more {
+					break
+				}
 				for _, c := range Patents {
 					if p.number == c.number {
 						continue
