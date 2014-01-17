@@ -14,6 +14,8 @@ var commit sync.WaitGroup
 
 func calculateDistances(concurrency int) {
 	patentwg.Add(concurrency)
+	os.RemoveAll("out")
+	os.Mkdir("out", 0777)
 	for i := 0; i < concurrency; i++ {
 		go func(i int) {
 			filename := "out/" + strconv.Itoa(i)
@@ -46,6 +48,8 @@ func calculateDistances(concurrency int) {
 }
 
 func calculateExternalDistances(concurrency int, filename string) {
+	os.RemoveAll("out")
+	os.Mkdir("out", 0777)
 	externalFileChannel := make(chan []byte)
 	externalPatentChannel := make(chan *Patent)
 	externalPatentMap := make(map[int]string)
