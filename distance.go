@@ -26,6 +26,7 @@ func calculateDistances(concurrency int) {
 			}
 			defer file.Close()
 			w := bufio.NewWriter(file)
+            defer w.Flush()
 			for {
 				p, more := <-patentChannel
 				if !more {
@@ -41,7 +42,6 @@ func calculateDistances(concurrency int) {
 					}
 					fmt.Fprintln(w, PatentMap[p.number], ",", PatentMap[c.number], ",", distance)
 				}
-				w.Flush()
 			}
 			patentwg.Done()
 		}(i)
@@ -70,6 +70,7 @@ func calculateExternalDistances(concurrency int, filename string) {
 			}
 			defer file.Close()
 			w := bufio.NewWriter(file)
+            defer w.Flush()
 			for {
 				p, more := <-externalPatentChannel
 				if !more {
@@ -83,9 +84,12 @@ func calculateExternalDistances(concurrency int, filename string) {
 					if distance == 0.0 {
 						continue
 					}
+                    fmt.Println(w)
+                    fmt.Println(externalPatentMap[p.number])
+                    fmt.Println(PatentMap[c.number])
+                    fmt.Println(distance)
 					fmt.Fprintln(w, externalPatentMap[p.number], ",", PatentMap[c.number], ",", distance)
 				}
-				w.Flush()
 			}
 			patentwg.Done()
 		}(i)
@@ -105,6 +109,7 @@ func calculateExternalDistances(concurrency int, filename string) {
 		externalPatentChannel <- makePatent(linecount, taglist)
 		externalPatentMap[linecount] = number
 	}
+    fmt.Println("gothere")
 	close(externalPatentChannel)
 	patentwg.Wait()
 }
