@@ -12,6 +12,8 @@ import (
 var wg sync.WaitGroup
 var commit sync.WaitGroup
 
+/**
+*/
 func calculateDistances(concurrency int) {
 	patentwg.Add(concurrency)
 	os.RemoveAll("out")
@@ -37,7 +39,7 @@ func calculateDistances(concurrency int) {
 						continue
 					}
 					distance := p.jaccardDistance(c)
-					if distance == 0.0 {
+					if distance <= 2.0 {
 						continue
 					}
 					fmt.Fprintln(w, PatentMap[p.number], ",", PatentMap[c.number], ",", distance)
@@ -84,11 +86,12 @@ func calculateExternalDistances(concurrency int, filename string) {
 					if distance == 0.0 {
 						continue
 					}
-                    fmt.Println(w)
-                    fmt.Println(externalPatentMap[p.number])
-                    fmt.Println(PatentMap[c.number])
-                    fmt.Println(distance)
-					fmt.Fprintln(w, externalPatentMap[p.number], ",", PatentMap[c.number], ",", distance)
+					_, err = fmt.Fprintln(w, externalPatentMap[p.number], ",", PatentMap[c.number], ",", distance)
+                    if err != nil {
+                      fmt.Println(err)
+                      fmt.Println(w)
+                      os.Exit(1)
+                    }
 				}
 			}
 			patentwg.Done()

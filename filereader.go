@@ -30,6 +30,7 @@ func readFile(filename string, channel chan []byte) {
 			close(channel)
 			break
 		}
+        /* remove newline, then send to channel */
 		channel <- line[:len(line)-1]
 	}
 	filewg.Wait()
